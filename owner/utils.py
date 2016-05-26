@@ -9,7 +9,10 @@ from owner import app
 
 
 def get_repo():
-    return pygit2.Repository(app.config['REPO_PATH'])
+    repo = pygit2.Repository(app.config['REPO_PATH'])
+    repo._owner_node_cache = {}
+
+    return repo
 
 
 def splitall(path):
@@ -30,6 +33,15 @@ def splitall(path):
         allparts.pop()
 
     return allparts
+
+
+def get_node(repo, path):
+    if path not in repo._owner_node_cache:
+        repo._owner_node_cache[path] = TreeNode(repo, path)
+    else:
+        print(path)
+
+    return repo._owner_node_cache[path]
 
 
 class TreeNode(object):
@@ -66,6 +78,7 @@ class TreeNode(object):
 
         return dirs, files
 
+    @cached_property
     def dir_no_authors(self):
         dirs = []
 
@@ -77,6 +90,7 @@ class TreeNode(object):
 
         return sorted(dirs)
 
+    @cached_property
     def dir_authors(self):
         dirs = []
 
@@ -85,9 +99,9 @@ class TreeNode(object):
             authors = defaultdict(lambda: 0)
             path = os.path.join(self.path, d.name)
 
-            inner_tree = TreeNode(self.repo, path)
-            inner_dir_authors = inner_tree.dir_authors()
-            inner_file_authors = inner_tree.file_authors()
+            inner_tree = get_node(self.repo, path)
+            inner_dir_authors = inner_tree.dir_authors
+            inner_file_authors = inner_tree.file_authors
 
             for _, author_info in inner_dir_authors:
                 for author, count in author_info:
@@ -101,7 +115,7 @@ class TreeNode(object):
 
         return sorted(dirs)
 
-
+    @cached_property
     def file_authors(self):
         files = []
 

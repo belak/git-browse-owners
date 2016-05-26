@@ -1,23 +1,20 @@
 import os.path
 
-from flask import render_template
-from interruptingcow import timeout
+from flask import render_template, request
 import pygit2
 
 from owner import app
-from owner.utils import TreeNode
+from owner.utils import get_node
 
 @app.route('/')
 @app.route('/<path:path>')
 def browse(path=None):
-    node = TreeNode(app.repo, path)
+    node = get_node(app.repo, path)
 
-    try:
-        # Because this is a recursive operation, it can be painfully expensive
-        with timeout(10, exception=RuntimeError):
-            dirs = node.dir_authors()
-    except:
-        dirs = node.dir_no_authors()
+    if request.args.get('recurse', False):
+        dirs = node.dir_authors
+    else:
+        dirs = node.dir_no_authors
 
-    files = node.file_authors()
+    files = node.file_authors
     return render_template('directory.html', dirs=dirs, files=files)

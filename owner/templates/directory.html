@@ -8,7 +8,7 @@
     {% for dir in dirs %}
     <tr>
         <td>
-            <a href="{{ url_for('browse', path=dir[0]) }}">
+            <a href="{{ url_for('browse', path=dir[0], recurse=request.args.get('recurse')) }}">
                 {{ dir[0] }}
             </a>
         </td>

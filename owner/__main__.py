@@ -1,2 +1,2 @@
 from owner import app
-app.run()
+app.run(threaded=True)
