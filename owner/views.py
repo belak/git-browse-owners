@@ -1,44 +1,24 @@
 import os.path
 
-from flask import render_template, abort
+from flask import render_template
+from interruptingcow import timeout
 import pygit2
 
 from owner import app
-from owner.utils import get_repo, calculate_authors
+from owner.utils import get_repo, TreeNode
 
 @app.route('/')
 @app.route('/<path:path>')
 def browse(path=None):
     repo = get_repo()
-    root = repo.head.peel(pygit2.Tree)
-    tree = root
+    node = TreeNode(get_repo(), path)
 
-    if path is not None:
-        path_parts = []
-        path, leaf = os.path.split(path)
-        while leaf:
-            path_parts.append(leaf)
-            path, leaf = os.path.split(path)
+    try:
+        # Because this is a recursive operation, it can be painfully expensive
+        with timeout(10, exception=RuntimeError):
+            dirs = node.dir_authors()
+    except:
+        dirs = node.dir_no_authors()
 
-        if path:
-            path_parts.append(path)
-
-        path_parts.reverse()
-
-        try:
-            for segment in path_parts:
-                oid = tree[segment].id
-                tree = repo.get(oid)
-        except KeyError:
-            abort(404)
-
-        if path_parts:
-            path = os.path.join(*path_parts)
-        else:
-            path = ''
-    else:
-        path = ''
-
-    dirs, files = calculate_authors(repo, tree, prefix=path)
-
+    files = node.file_authors()
     return render_template('directory.html', dirs=dirs, files=files)

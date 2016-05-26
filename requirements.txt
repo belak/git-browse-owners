@@ -1,2 +1,4 @@
 pygit2
 flask
+interruptingcow
+cached_property
