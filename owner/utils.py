@@ -36,6 +36,9 @@ class TreeNode(object):
     def __init__(self, repo, path):
         self.repo = repo
         self.path = path
+        if self.path is None:
+            self.path = ''
+
         self.components = splitall(self.path)
 
         self.tree = repo.head.peel(pygit2.Tree)
