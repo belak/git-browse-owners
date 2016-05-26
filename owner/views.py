@@ -5,13 +5,12 @@ from interruptingcow import timeout
 import pygit2
 
 from owner import app
-from owner.utils import get_repo, TreeNode
+from owner.utils import TreeNode
 
 @app.route('/')
 @app.route('/<path:path>')
 def browse(path=None):
-    repo = get_repo()
-    node = TreeNode(get_repo(), path)
+    node = TreeNode(app.repo, path)
 
     try:
         # Because this is a recursive operation, it can be painfully expensive
