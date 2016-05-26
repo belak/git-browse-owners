@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block body %}
+<table>
+    <tr>
+        <th>Directory</th>
+        <th>Commiters</th>
+    </tr>
+    {% for dir in dirs %}
+    <tr>
+        <td>
+            <a href="{{ url_for('browse', path=dir[0]) }}">
+                {{ dir[0] }}
+            </a>
+        </td>
+        <td>
+            <ul>
+                {% for author, count in dir[1] %}
+                <li>{{ author }} - {{ count }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    {% endfor %}
+
+    <tr>
+        <th>File</th>
+        <th>Commiters</th>
+    </tr>
+    {% for file in files %}
+    <tr>
+        <td>{{ file[0] }}</td>
+        <td>
+            <ul>
+                {% for author, count in file[1] %}
+                <li>{{ author }} - {{ count }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Owner Browser</title>
+    </head>
+    <body>
+        {% for message in get_flashed_messages() %}
+            <div>{{ message }}</div>
+        {% endfor %}
+        {% block body %}{% endblock %}
+    </body>
+</html>
